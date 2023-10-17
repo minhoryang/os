@@ -1,0 +1,57 @@
+package:
+  name: falcon
+  version: "0.36.0"
+  epoch: 0
+  description: "Cloud native runtime security tool for linux operating systems"
+  copyright:
+    - license: Apache-2.0
+
+environment:
+  contents:
+    packages:
+      - bash
+      - wolfi-base
+      - abseil-cpp-dev
+      - autoconf
+      - automake
+      - cmake
+      - jq-dev	
+      - c-ares-dev
+      - elfutils-dev
+      - grpc-dev
+      - icu-dev
+      - libelf-static
+      - openssl-dev
+      - protobuf-dev
+      - re2-dev
+      - yaml-cpp-dev
+      - curl-dev
+      - elfutils-dev
+      - pkgconf-dev
+
+pipeline:
+  - uses: git-checkout
+    with:
+      repository: https://github.com/falcosecurity/falco
+      tag: ${{package.version}}
+      expected-commit: ee56a5c4e4af9c3786a988aab773f417c00bc28a
+
+  - runs: |
+      mkdir -p build
+      cd build
+      export CMAKE_PREFIX_PATH=/usr/include/google:/usr/bin:/usr/lib:/usr/lib/cmake:/usr/share:/usr/include:/usr/lib/pkgconfig
+      sed -i 's/find_dependency/find_package/' /usr/lib/cmake/grpc/gRPCConfig.cmake
+      cmake ..
+
+  - runs: |
+      make falco
+      # to be added
+
+  - uses: strip
+
+update:
+  enabled: true
+  github:
+    identifier: falcosecurity/falco
+    strip-prefix: v
+    use-tag: true
